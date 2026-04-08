@@ -469,7 +469,8 @@ def run_task(task: dict[str, Any]) -> float:
         else:
             heuristic._update_from_scan(obs)
 
-    score = max(0.0, min(1.0, env.state.score_breakdown.total / 100.0))
+    raw = env.state.score_breakdown.total / 100.0
+    score = round(max(0.001, min(0.999, raw)), 4)
 
     emit("END", {
         "task_id": task["task_id"],

@@ -119,19 +119,17 @@ class ScoreBreakdown(BaseModel):
     penalties: float = 0.0
     total: float = 0.0
     normalized_score: float = Field(
-        default=0.0,
-        ge=0.0,
-        le=1.0,
-        description="Total score mapped to the 0.0-1.0 grader range.",
+        default=0.001,
+        gt=0.0,
+        lt=1.0,
+        description="Total score mapped to the (0.0, 1.0) grader range (exclusive).",
     )
 
     @model_validator(mode="after")
     def _sync_normalized(self) -> "ScoreBreakdown":
-        object.__setattr__(
-            self,
-            "normalized_score",
-            round(max(0.0, min(1.0, self.total / 100.0)), 4),
-        )
+        raw = self.total / 100.0
+        clamped = round(max(0.001, min(0.999, raw)), 4)
+        object.__setattr__(self, "normalized_score", clamped)
         return self
 
 

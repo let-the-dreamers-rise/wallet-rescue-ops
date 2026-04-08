@@ -28,15 +28,15 @@ def _finish(label: IncidentLabel) -> WalletRescueAction:
 def test_normalized_score_in_range() -> None:
     for total in [-20.0, 0.0, 50.0, 85.5, 100.0, 120.0]:
         sb = ScoreBreakdown(total=total)
-        assert 0.0 <= sb.normalized_score <= 1.0
+        assert 0.0 < sb.normalized_score < 1.0
 
 
 def test_normalized_score_values() -> None:
-    assert ScoreBreakdown(total=0.0).normalized_score == 0.0
-    assert ScoreBreakdown(total=100.0).normalized_score == 1.0
+    assert ScoreBreakdown(total=0.0).normalized_score == 0.001
+    assert ScoreBreakdown(total=100.0).normalized_score == 0.999
     assert ScoreBreakdown(total=50.0).normalized_score == 0.5
-    assert ScoreBreakdown(total=-30.0).normalized_score == 0.0
-    assert ScoreBreakdown(total=150.0).normalized_score == 1.0
+    assert ScoreBreakdown(total=-30.0).normalized_score == 0.001
+    assert ScoreBreakdown(total=150.0).normalized_score == 0.999
 
 
 def test_tasks_endpoint_returns_five_tasks() -> None:
