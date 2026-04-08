@@ -60,7 +60,7 @@ def test_invalid_inspect_target_penalizes() -> None:
     )
 
     assert result.last_tool_result.status == "error"
-    assert result.reward < 0
+    assert result.reward <= 0.001
 
 
 def test_transfer_requires_secondary_approval() -> None:
@@ -91,7 +91,7 @@ def test_revoking_benign_approval_counts_false_positive() -> None:
 
     assert result.last_tool_result.status == "warning"
     assert env.state.false_positive_count == 1
-    assert result.reward < 0
+    assert result.reward <= 0.001
 
 
 def test_message_user_increments_counter() -> None:

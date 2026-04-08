@@ -166,7 +166,7 @@ class WalletRescueEnvironment(
                     "safe_vault": episode.safe_vault_destination,
                 },
             ),
-            reward=0.0,
+            reward=0.001,
             done=False,
         )
 
@@ -204,7 +204,7 @@ class WalletRescueEnvironment(
                     status=ToolStatus.WARNING,
                     summary="Episode already finished. Reset before taking more actions.",
                 ),
-                reward=0.0,
+                reward=0.001,
                 done=True,
             )
 
@@ -238,7 +238,8 @@ class WalletRescueEnvironment(
             )
 
         self._refresh_scorebreakdown(finalize=self._finished)
-        reward = round2(self._state.score_breakdown.total - previous_total)
+        raw_reward = round2(self._state.score_breakdown.total - previous_total)
+        reward = round(max(0.001, min(0.999, raw_reward / 100.0)), 4)
         return self._make_observation(tool_result, reward=reward, done=self._finished)
 
     def _handle_scan_wallet(self, action: WalletRescueAction) -> ToolResult:
