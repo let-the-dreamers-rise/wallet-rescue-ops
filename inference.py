@@ -27,12 +27,13 @@ from wallet_rescue_ops.models import (
 )
 from wallet_rescue_ops.server.wallet_rescue_environment import WalletRescueEnvironment
 
-API_BASE_URL = os.environ.get("API_BASE_URL", "")
-MODEL_NAME = os.environ.get("MODEL_NAME", "")
-HF_TOKEN = os.environ.get("HF_TOKEN", "")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
+HF_TOKEN = os.getenv("HF_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
 
-_api_key = HF_TOKEN or OPENAI_API_KEY
+_api_key = HF_TOKEN or OPENAI_API_KEY or ""
 USE_LLM = bool(API_BASE_URL and MODEL_NAME and _api_key)
 
 if USE_LLM:
