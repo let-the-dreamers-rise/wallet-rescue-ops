@@ -142,7 +142,7 @@ def landing_page() -> str:
   </tbody></table>
 
   <p class="footer">Built for the Meta PyTorch OpenEnv Hackathon 2026 &middot;
-    <a href="https://github.com/meta-pytorch/OpenEnv">OpenEnv Framework</a></p>
+    <a href="https://github.com/meta-pytorch/OpenEnv" target="_blank" rel="noopener">OpenEnv Framework</a></p>
 </div></body></html>"""
 
 
