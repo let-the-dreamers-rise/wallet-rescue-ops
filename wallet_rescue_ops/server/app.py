@@ -34,7 +34,7 @@ TASKS = [
         ),
         "difficulty": "trivial",
         "seed": 9,
-        "max_steps": 7,
+        "max_steps": 10,
     },
     {
         "id": "easy_rescue",
@@ -45,7 +45,7 @@ TASKS = [
         ),
         "difficulty": "easy",
         "seed": 0,
-        "max_steps": 7,
+        "max_steps": 10,
     },
     {
         "id": "medium_rescue",
@@ -56,7 +56,7 @@ TASKS = [
         ),
         "difficulty": "medium",
         "seed": 6,
-        "max_steps": 8,
+        "max_steps": 12,
     },
     {
         "id": "hard_rescue",
@@ -67,7 +67,7 @@ TASKS = [
         ),
         "difficulty": "hard",
         "seed": 10,
-        "max_steps": 7,
+        "max_steps": 12,
     },
     {
         "id": "expert_rescue",
@@ -79,7 +79,7 @@ TASKS = [
         ),
         "difficulty": "expert",
         "seed": 8,
-        "max_steps": 8,
+        "max_steps": 15,
     },
 ]
 
