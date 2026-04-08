@@ -103,6 +103,21 @@ def emit(tag: str, payload: dict[str, Any]) -> None:
     print(f"[{tag}] {json.dumps(payload, default=str)}", flush=True)
 
 
+def log_start(task: str, env: str, model: str) -> None:
+    print(f"[START] task={task} env={env} model={model}", flush=True)
+
+
+def log_step(step: int, action: str, reward: float, done: bool, error: str | None = None) -> None:
+    error_val = error if error else "null"
+    done_val = str(done).lower()
+    print(f"[STEP] step={step} action={action} reward={reward:.4f} done={done_val} error={error_val}", flush=True)
+
+
+def log_end(success: bool, steps: int, score: float, rewards: list[float]) -> None:
+    rewards_str = ",".join(f"{r:.4f}" for r in rewards)
+    print(f"[END] success={str(success).lower()} steps={steps} score={score:.4f} rewards={rewards_str}", flush=True)
+
+
 def ts() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -413,12 +428,7 @@ def run_task(task: dict[str, Any]) -> float:
     obs = env.reset(seed=task["seed"])
     scenario_id = env.state.scenario_id
 
-    emit("START", {
-        "task_id": task["task_id"],
-        "scenario_id": scenario_id,
-        "seed": task["seed"],
-        "timestamp": ts(),
-    })
+    log_start(task=task["task_id"], env="wallet_rescue_ops", model=MODEL_NAME)
 
     heuristic = HeuristicAgent()
     heuristic.reset(obs)
@@ -431,6 +441,7 @@ def run_task(task: dict[str, Any]) -> float:
     done = False
     step_num = 0
     cumulative_reward = 0.0
+    all_rewards: list[float] = []
 
     while not done and step_num < 15:
         if USE_LLM:
@@ -453,16 +464,15 @@ def run_task(task: dict[str, Any]) -> float:
         step_num += 1
         step_reward = round(max(0.001, min(0.999, obs.reward)), 4)
         cumulative_reward += step_reward
+        all_rewards.append(step_reward)
         done = obs.done
 
-        emit("STEP", {
-            "task_id": task["task_id"],
-            "step": step_num,
-            "action": slim_action(action),
-            "reward": step_reward,
-            "cumulative_reward": round(max(0.001, min(0.999, cumulative_reward)), 4),
-            "done": done,
-        })
+        log_step(
+            step=step_num,
+            action=action.kind.value,
+            reward=step_reward,
+            done=done,
+        )
 
         if USE_LLM:
             messages.append({"role": "assistant", "content": raw_text})
@@ -471,14 +481,9 @@ def run_task(task: dict[str, Any]) -> float:
             heuristic._update_from_scan(obs)
 
     score = round(max(0.001, min(0.999, env.state.score_breakdown.total)), 4)
+    success = score > 0.01
 
-    emit("END", {
-        "task_id": task["task_id"],
-        "scenario_id": scenario_id,
-        "score": score,
-        "steps": step_num,
-        "timestamp": ts(),
-    })
+    log_end(success=success, steps=step_num, score=score, rewards=all_rewards)
 
     return score
 

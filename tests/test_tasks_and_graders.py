@@ -122,4 +122,4 @@ def test_inference_script_runs_successfully() -> None:
     assert "[STEP]" in result.stdout
     assert "[END]" in result.stdout
     assert "[SUMMARY]" in result.stdout
-    assert '"score":' in result.stdout
+    assert "score=" in result.stdout

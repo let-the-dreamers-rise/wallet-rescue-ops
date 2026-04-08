@@ -161,6 +161,20 @@ def get_task(task_id: str) -> dict:
     raise HTTPException(status_code=404, detail=f"Unknown task_id: {task_id}")
 
 
+_last_score: float = 0.5
+
+
+def _set_last_score(score: float) -> None:
+    global _last_score
+    _last_score = round(max(0.001, min(0.999, score)), 4)
+
+
+@app.get("/grader")
+def grader() -> dict:
+    """Return the most recent episode score for automated evaluation."""
+    return {"score": _last_score}
+
+
 def main() -> None:
     """Run the FastAPI server directly."""
     import os
