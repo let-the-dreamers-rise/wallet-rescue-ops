@@ -239,7 +239,7 @@ class WalletRescueEnvironment(
 
         self._refresh_scorebreakdown(finalize=self._finished)
         raw_reward = round2(self._state.score_breakdown.total - previous_total)
-        reward = round(max(0.001, min(0.999, raw_reward / 100.0)), 4)
+        reward = round(max(0.001, min(0.999, raw_reward)), 4)
         return self._make_observation(tool_result, reward=reward, done=self._finished)
 
     def _handle_scan_wallet(self, action: WalletRescueAction) -> ToolResult:
@@ -647,7 +647,7 @@ class WalletRescueEnvironment(
 
         self._state.safe_vault_usd = safe_vault_usd
         self._state.funds_preserved_usd = safe_vault_usd
-        self._state.score_breakdown = ScoreBreakdown(
+        self._state.score_breakdown = ScoreBreakdown.normalized(
             funds_preserved=funds_preserved,
             approvals_revoked=approvals_revoked,
             policy_compliance=policy_compliance,
@@ -779,7 +779,7 @@ class WalletRescueEnvironment(
             ),
             last_tool_result=tool_result,
             remaining_steps=max(self._episode.max_steps - self._state.step_count, 0),
-            score_breakdown=self._state.score_breakdown if done else None,
+            score_breakdown=None,
             done=done,
             reward=reward,
         )

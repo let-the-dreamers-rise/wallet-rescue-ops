@@ -108,29 +108,53 @@ class ToolResult(BaseModel):
 
 
 class ScoreBreakdown(BaseModel):
-    """Human-readable judge-facing score breakdown."""
+    """Score breakdown with all fields pre-normalized to strict (0, 1) range.
 
-    funds_preserved: float = 0.0
-    approvals_revoked: float = 0.0
-    policy_compliance: float = 0.0
-    false_positive_avoidance: float = 0.0
-    efficiency: float = 0.0
-    closure_quality: float = 0.0
-    penalties: float = 0.0
-    total: float = 0.0
-    normalized_score: float = Field(
-        default=0.001,
-        gt=0.0,
-        lt=1.0,
-        description="Total score mapped to the (0.0, 1.0) grader range (exclusive).",
-    )
+    Callers must pass already-normalized values (use the ``normalized``
+    class method to convert from raw 0-100 scale).  Every serialized field
+    satisfies the OpenEnv requirement ``0 < value < 1``.
+    """
 
-    @model_validator(mode="after")
-    def _sync_normalized(self) -> "ScoreBreakdown":
-        raw = self.total / 100.0
-        clamped = round(max(0.001, min(0.999, raw)), 4)
-        object.__setattr__(self, "normalized_score", clamped)
-        return self
+    funds_preserved: float = 0.001
+    approvals_revoked: float = 0.001
+    policy_compliance: float = 0.001
+    false_positive_avoidance: float = 0.001
+    efficiency: float = 0.001
+    closure_quality: float = 0.001
+    penalties: float = 0.001
+    total: float = 0.001
+    normalized_score: float = 0.001
+
+    @classmethod
+    def normalized(
+        cls,
+        *,
+        funds_preserved: float = 0.0,
+        approvals_revoked: float = 0.0,
+        policy_compliance: float = 0.0,
+        false_positive_avoidance: float = 0.0,
+        efficiency: float = 0.0,
+        closure_quality: float = 0.0,
+        penalties: float = 0.0,
+        total: float = 0.0,
+    ) -> "ScoreBreakdown":
+        """Create from raw 0-100 scale values, normalizing to (0.001, 0.999)."""
+
+        def _clamp(val: float) -> float:
+            return round(max(0.001, min(0.999, val)), 4)
+
+        ns = _clamp(total / 100.0)
+        return cls(
+            funds_preserved=_clamp(funds_preserved / 40.0),
+            approvals_revoked=_clamp(approvals_revoked / 20.0),
+            policy_compliance=_clamp(policy_compliance / 15.0),
+            false_positive_avoidance=_clamp(false_positive_avoidance / 10.0),
+            efficiency=_clamp(efficiency / 10.0),
+            closure_quality=_clamp(closure_quality / 5.0),
+            penalties=_clamp(abs(penalties) / 100.0),
+            total=ns,
+            normalized_score=ns,
+        )
 
 
 class WalletRescueAction(Action):

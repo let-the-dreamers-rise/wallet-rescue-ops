@@ -451,7 +451,7 @@ def run_task(task: dict[str, Any]) -> float:
 
         obs = env.step(action)
         step_num += 1
-        step_reward = round(max(0.001, min(0.999, obs.reward / 100.0)), 4)
+        step_reward = round(max(0.001, min(0.999, obs.reward)), 4)
         cumulative_reward += step_reward
         done = obs.done
 
@@ -470,8 +470,7 @@ def run_task(task: dict[str, Any]) -> float:
         else:
             heuristic._update_from_scan(obs)
 
-    raw = env.state.score_breakdown.total / 100.0
-    score = round(max(0.001, min(0.999, raw)), 4)
+    score = round(max(0.001, min(0.999, env.state.score_breakdown.total)), 4)
 
     emit("END", {
         "task_id": task["task_id"],

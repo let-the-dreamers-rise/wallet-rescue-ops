@@ -124,8 +124,7 @@ def test_optimal_rescue_scores_high() -> None:
     final_obs = env.step(finish_action(IncidentLabel.FAKE_AIRDROP_APPROVAL_ATTACK))
 
     assert final_obs.done is True
-    assert final_obs.score_breakdown is not None
-    assert final_obs.score_breakdown.total >= 70
+    assert env.state.score_breakdown.total >= 0.7
     assert env.state.funds_lost_during_episode_usd == 0
 
 
@@ -137,9 +136,8 @@ def test_missed_malicious_approval_scores_poorly() -> None:
     final_obs = env.step(finish_action(IncidentLabel.FAKE_AIRDROP_APPROVAL_ATTACK))
 
     assert final_obs.done is True
-    assert final_obs.score_breakdown is not None
     assert env.state.funds_lost_during_episode_usd > 0
-    assert final_obs.score_breakdown.total < 20
+    assert env.state.score_breakdown.total < 0.2
 
 
 def test_overblocking_benign_case_scores_poorly() -> None:
@@ -160,10 +158,9 @@ def test_overblocking_benign_case_scores_poorly() -> None:
     )
     final_obs = env.step(finish_action(IncidentLabel.MIXED_SIGNAL_COMPROMISE))
 
-    assert final_obs.score_breakdown is not None
     assert env.state.false_positive_count == 1
-    assert final_obs.score_breakdown.false_positive_avoidance == 0
-    assert final_obs.score_breakdown.total < 70
+    assert env.state.score_breakdown.false_positive_avoidance <= 0.001
+    assert env.state.score_breakdown.total < 0.7
 
 
 def test_unsafe_transfer_without_secondary_approval_scores_poorly() -> None:
@@ -180,7 +177,6 @@ def test_unsafe_transfer_without_secondary_approval_scores_poorly() -> None:
     )
     final_obs = env.step(finish_action(IncidentLabel.FAKE_AIRDROP_APPROVAL_ATTACK))
 
-    assert final_obs.score_breakdown is not None
     assert "high-value transfer without approval" in env.state.policy_violations
-    assert final_obs.score_breakdown.policy_compliance == 0
-    assert final_obs.score_breakdown.total < 25
+    assert env.state.score_breakdown.policy_compliance <= 0.001
+    assert env.state.score_breakdown.total < 0.25
