@@ -451,15 +451,16 @@ def run_task(task: dict[str, Any]) -> float:
 
         obs = env.step(action)
         step_num += 1
-        cumulative_reward += obs.reward
+        step_reward = round(max(0.001, min(0.999, obs.reward / 100.0)), 4)
+        cumulative_reward += step_reward
         done = obs.done
 
         emit("STEP", {
             "task_id": task["task_id"],
             "step": step_num,
             "action": slim_action(action),
-            "reward": round(obs.reward, 4),
-            "cumulative_reward": round(cumulative_reward, 4),
+            "reward": step_reward,
+            "cumulative_reward": round(max(0.001, min(0.999, cumulative_reward)), 4),
             "done": done,
         })
 
@@ -475,8 +476,7 @@ def run_task(task: dict[str, Any]) -> float:
     emit("END", {
         "task_id": task["task_id"],
         "scenario_id": scenario_id,
-        "score": round(score, 4),
-        "reward_total": round(env.state.score_breakdown.total, 4),
+        "score": score,
         "steps": step_num,
         "timestamp": ts(),
     })
